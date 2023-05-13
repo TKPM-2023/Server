@@ -5,7 +5,7 @@ import java.util.List;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import hcmus.model.AppUserRole;
+import hcmus.model.UserRole;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +18,6 @@ public class UserDataDTO {
   @ApiModelProperty(position = 2)
   private String password;
   @ApiModelProperty(position = 3)
-  List<AppUserRole> appUserRoles;
+  List<UserRole> userRoles;
 
 }

@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import hcmus.exception.CustomException;
-import hcmus.model.AppUser;
+import hcmus.model.User;
 import hcmus.repository.UserRepository;
 import hcmus.security.JwtTokenProvider;
 
@@ -27,17 +27,17 @@ public class UserService {
   public String signin(String username, String password) {
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-      return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getAppUserRoles());
+      return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getUserRoles());
     } catch (AuthenticationException e) {
       throw new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
-  public String signup(AppUser appUser) {
-    if (!userRepository.existsByUsername(appUser.getUsername())) {
-      appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
-      userRepository.save(appUser);
-      return jwtTokenProvider.createToken(appUser.getUsername(), appUser.getAppUserRoles());
+  public String signup(User user) {
+    if (!userRepository.existsByUsername(user.getUsername())) {
+      user.setPassword(passwordEncoder.encode(user.getPassword()));
+      userRepository.save(user);
+      return jwtTokenProvider.createToken(user.getUsername(), user.getUserRoles());
     } else {
       throw new CustomException("Username is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
     }
@@ -47,20 +47,20 @@ public class UserService {
     userRepository.deleteByUsername(username);
   }
 
-  public AppUser search(String username) {
-    AppUser appUser = userRepository.findByUsername(username);
-    if (appUser == null) {
+  public User search(String username) {
+    User user = userRepository.findByUsername(username);
+    if (user == null) {
       throw new CustomException("The user doesn't exist", HttpStatus.NOT_FOUND);
     }
-    return appUser;
+    return user;
   }
 
-  public AppUser whoami(HttpServletRequest req) {
+  public User whoami(HttpServletRequest req) {
     return userRepository.findByUsername(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
   }
 
   public String refresh(String username) {
-    return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getAppUserRoles());
+    return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getUserRoles());
   }
 
 }
